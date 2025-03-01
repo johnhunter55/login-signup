@@ -1,0 +1,205 @@
+.first-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    height: 650px;
+    background: #1B1B2F;
+    border-radius: 10px;
+    box-shadow: 4px 4px 10px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+
+@property --angle{
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  
+  .container::after, .container::before{
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background-image: conic-gradient(from var(--angle), rgb(255, 238, 145), white);
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    z-index: -1;
+    padding: 3px;
+    border-radius: 11px;
+    animation: 3s spin linear infinite;
+  }
+  
+  @keyframes spin{
+    from{
+      --angle: 0deg;
+    }
+    to{
+      --angle: 360deg;
+    }
+  }
+
+.header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.text{
+    color: rgb(255, 238, 145);
+    font-size: 48px;
+    font-weight: 700;
+}
+
+.underline{
+    width: 61px;
+    height: 6px;
+    background: white;
+    border-radius: 9px;
+}
+
+.inputs{
+    margin-top: 55px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.input{
+    display: flex;
+    align-items: center;
+    margin: auto;
+    width: 480px;
+    height: 80px;
+    background: #1B1B2F;
+    border-radius: 20px;
+    border: solid 2px white;
+}
+
+.input img{
+    margin: 0px 30px;
+}
+
+.input input{
+    height: 50px;
+    width: 400px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 19px;
+}
+
+.forgot-password{
+    padding-left: 62px;
+    margin-top: 27px;
+    color: white;
+    font-size: 18px;
+}
+
+.forgot-password span{
+    color: rgb(255, 238, 145);
+    cursor: pointer;
+}
+
+.pushdown{
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    flex-grow: 1; /* Pushes itself to take remaining space */
+}
+
+.submit-container{
+    display: flex;
+    gap: 30px;
+    margin: 60px auto;
+}
+
+.submit{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 220px;
+    height: 59px;
+    color: #09090F;
+    background: rgb(255, 238, 145);
+    border-radius: 50px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.gray{
+    background: #eaeaea;
+}
+
+@media (max-width: 620px) {
+    .container{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        background: #1B1B2F;
+        box-shadow: 4px 4px 10px 5px rgba(0, 0, 0, 0.2);
+        position: relative;
+        border-radius: 0px;
+    }
+    .input{
+        display: flex;
+        align-items: center;
+        margin: auto;
+        width: 90%;
+        height: 60px;
+        background: #1B1B2F;
+        border-radius: 20px;
+        border: solid 2px white;
+    }
+    .pushdown{
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+    }
+    .submit{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 150px;
+        height: 59px;
+        color: #09090F;
+        background: rgb(255, 238, 145);
+        border-radius: 50px;
+        font-size: 19px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+}
+
+@media (max-width: 920px) and (orientation: landscape) {
+    .container {
+        height: 90%; /* Prevents overflow */
+
+    }
+    
+    .input{
+        height: 20px;
+    }
+
+    .pushdown{
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+    }
+
+}
