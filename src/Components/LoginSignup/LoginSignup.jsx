@@ -153,7 +153,11 @@ const LoginSignup = () => {
           </div>
 
           {action === "Sign Up" && (
-            <div className="input">
+            <div
+              className={`input ${
+                confirmPassword !== password ? "noMatch" : ""
+              }`}
+            >
               <img src={password_icon} alt="Password" />
               <input
                 type="password"
