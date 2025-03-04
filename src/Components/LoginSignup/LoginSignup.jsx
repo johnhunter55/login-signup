@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./LoginSignup.css";
 import { ToastContainer, toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 import user_icon from "../Assets/person.png";
 import email_icon from "../Assets/email.png";
 import password_icon from "../Assets/password.png";
@@ -16,43 +16,51 @@ const LoginSignup = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate(); // useNavigate hook for navigation
+
+  useEffect(() => {
+    if (pb.authStore.isValid) {
+      // If the user is already authenticated, redirect to dashboard
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const loginError = () => {
     if (!email) {
-      toast(`Error: type email`);
+      toast("Error: type email");
       return;
     }
     if (!password) {
-      toast(`Error: type password`);
+      toast("Error: type password");
       return;
     }
   };
 
   const signUpError = () => {
     if (!name) {
-      toast(`Error: type username`);
+      toast("Error: type username");
       return;
     }
     if (!email) {
-      toast(`Error: type email`);
+      toast("Error: type email");
       return;
     }
     if (!password) {
-      toast(`Error: type password`);
+      toast("Error: type password");
       return;
     }
     if (!confirmPassword) {
-      toast(`Error: type confirm password`);
+      toast("Error: type confirm password");
       return;
     }
     if (confirmPassword !== password) {
-      toast(`Error: passwords dont match`);
+      toast("Error: passwords don't match");
       return;
     }
   };
 
-  // Define isFormValid function
+  // Validate form input
   const isFormValid = () => {
-    // For Sign Up, check if passwords match and if all fields are filled
     if (action === "Sign Up") {
       return (
         email &&
@@ -66,7 +74,7 @@ const LoginSignup = () => {
     }
   };
 
-  // Handle form submission
+  // Handle form submission for both signup and login
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -85,13 +93,11 @@ const LoginSignup = () => {
         const user = await pb
           .collection("users")
           .authWithPassword(email, password);
-        console.log("Logged in user:", user);
       }
 
-      setError(""); // Clear any error messages
-
-      // Redirect to the dashboard or next page after successful login/signup
-      window.location.href = "/dashboard"; // Redirect to dashboard
+      setError("");
+      // Redirect to dashboard after successful authentication
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       toast(`Error: ${err.message}`);
@@ -120,9 +126,7 @@ const LoginSignup = () => {
           <div className="underline"></div>
         </div>
         <div className="inputs">
-          {action === "Login" ? (
-            <div></div>
-          ) : (
+          {action === "Login" ? null : (
             <div className="input">
               <img src={user_icon} alt="User" />
               <input
@@ -151,14 +155,13 @@ const LoginSignup = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-
           {action === "Sign Up" && (
             <div
               className={`input ${
                 confirmPassword !== password ? "noMatch" : ""
               }`}
             >
-              <img src={password_icon} alt="Password" />
+              <img src={password_icon} alt="Confirm Password" />
               <input
                 type="password"
                 placeholder="Confirm Password"
@@ -168,7 +171,6 @@ const LoginSignup = () => {
             </div>
           )}
         </div>
-
         <div className="pushdown">
           <div className="submit-container">
             <div
@@ -180,8 +182,7 @@ const LoginSignup = () => {
                   } else {
                     signUpError();
                   }
-                }
-                if (action === "Login") {
+                } else {
                   setAction("Sign Up");
                 }
               }}
@@ -197,8 +198,7 @@ const LoginSignup = () => {
                   } else {
                     loginError();
                   }
-                }
-                if (action === "Sign Up") {
+                } else {
                   setAction("Login");
                 }
               }}
