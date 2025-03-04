@@ -5,38 +5,35 @@ import pb from "../utils/pocketbase";
 import Auth from "../utils/Auth.jsx";
 import logout_logo from "../Assets/logout.png";
 import upload_logo from "../Assets/upload.png";
+import { ToastContainer, toast } from "react-toastify";
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState(true); // Handle loading state for user data
+  const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [displayRecords, setDisplayRecords] = useState([]);
-  const navigate = useNavigate(); // ✅ Call useNavigate inside the component
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [label, setLabel] = useState("");
-  const fileInputRef = useRef(null); // Define useRef for the file input
+  const fileInputRef = useRef(null);
   const [loadingVideo, setLoadingVideo] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [userPosts, setUserPosts] = useState([]);
 
   const handleSignout = () => {
-    pb.authStore.clear(); // Clear authentication
-    navigate("/"); // ✅ Redirect to login page
+    pb.authStore.clear();
+    navigate("/");
   };
 
   useEffect(() => {
-    let isMounted = true; // Track if the component is mounted
+    let isMounted = true;
     const fetchUserData = async () => {
       try {
-        // Get the logged-in user's ID from the auth store
         const userId = pb.authStore.model.id;
-
-        // Fetch user data for the logged-in user
         const user = await pb.collection("users").getOne(userId);
         setUserData(user);
-
-        // Set all users to state only if the component is still mounted
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
-        // Set loading to false after data fetching is complete, if component is still mounted
         if (isMounted) {
           setLoading(false);
         }
@@ -56,7 +53,7 @@ const Dashboard = () => {
         const records = await pb.collection("users").getFullList({
           sort: "-created",
         });
-        setDisplayRecords(records); // ✅ Correct way to update state
+        setDisplayRecords(records);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching records:", error);
@@ -64,7 +61,7 @@ const Dashboard = () => {
     };
 
     fetchRecords();
-  }, []); // ✅ Runs only on mount
+  }, []);
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -76,6 +73,7 @@ const Dashboard = () => {
       return;
     }
 
+    setUploading(true); // Start uploading
     setLoadingVideo(true);
 
     const formData = new FormData();
@@ -86,12 +84,14 @@ const Dashboard = () => {
     try {
       const record = await pb.collection("posts").create(formData);
       console.log("Uploaded:", record);
-      alert("Upload successful!");
+      toast("File was uploaded successfully");
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed.");
     } finally {
       setLoadingVideo(false);
+      setUploading(false); // Hide popup after upload completes
+      setFile(null);
     }
   };
 
@@ -99,12 +99,44 @@ const Dashboard = () => {
     fileInputRef.current.click(); // Trigger file input click on image click
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  useEffect(() => {
+    const fetchData = async () => {
+      if (userData) {
+        const posts = await fetchUserPosts(userData.id);
+        setUserPosts(posts); // Store posts in state
+      }
+    };
+
+    fetchData();
+  }, [userData]); // Runs when `userData` is set
+  const fetchUserPosts = async (userId) => {
+    try {
+      const userPosts = await pb.collection("posts").getFullList({
+        filter: `user = '${userId}'`, // Filter by user
+        sort: "-created", // Sort by latest
+      });
+
+      return userPosts || []; // Return empty array if no posts
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      return []; // Return empty array on error
+    }
+  };
 
   return (
     <div className="fullpage">
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
       <div className="nav">
         <div className="sidebar">
           <h1 className="friend">Friends</h1>
@@ -118,51 +150,86 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <header>
-        {userData ? (
-          <h1>
-            {pb.authStore.model.id === userData.id ? "Your " : userData.name}
-            Videos
-          </h1>
-        ) : (
-          <div>Loading user data...</div>
-        )}
-
-        <div>
-          <img
-            src={upload_logo}
-            alt="Upload"
-            onClick={handleImageClick}
-            style={{ cursor: "pointer", width: "100px", height: "100px" }}
-          />
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            onChange={handleFileChange}
-            style={{ display: "none" }}
-          />
-
-          {/* Conditionally show label input once file is selected */}
-          {file && (
-            <>
-              <input
-                type="text"
-                placeholder="Enter label"
-                onChange={(e) => setLabel(e.target.value)}
-              />
-              <button onClick={handleUpload} disabled={loadingVideo}>
-                {loadingVideo ? "Uploading..." : "Upload"}
-              </button>
-            </>
+      <div className="headvid">
+        <header>
+          {userData ? (
+            <h1>
+              {pb.authStore.model.id === userData.id ? "Your " : userData.name}
+              Videos
+            </h1>
+          ) : (
+            <div>Loading user data...</div>
           )}
+          <div className="uploadimage">
+            <img src={upload_logo} alt="Upload" onClick={handleImageClick} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
+            {/* Conditionally show label input once file is selected */}
+            {file && !uploading && (
+              <div className="popout">
+                <input
+                  className="popouttext"
+                  type="text"
+                  placeholder="Enter Title"
+                  onChange={(e) => setLabel(e.target.value)}
+                />
+                <button onClick={handleUpload} disabled={loadingVideo}>
+                  {loadingVideo ? "Uploading..." : "Upload"}
+                </button>
+              </div>
+            )}
+            {/* Show the popout during the upload */}
+            {uploading && (
+              <div className="popout">
+                <h2>If the file was big it could take a couple minutes</h2>
+                <br></br>
+                <h3>Uploading...</h3>
+              </div>
+            )}
+          </div>
+          <button className="signout-button" onClick={handleSignout}>
+            Sign Out
+          </button>
+        </header>
+        <div className="videocontainer">
+          <div className="videobody">
+            {userPosts.length > 0 ? (
+              userPosts.map((post) => (
+                <div key={post.id} className="post-container">
+                  {post.file ? (
+                    post.file.endsWith(".mp4") ||
+                    post.file.endsWith(".webm") ? (
+                      <video controls width="300">
+                        <source
+                          src={pb.files.getUrl(post, post.file)}
+                          type="video/mp4"
+                        />
+                        Your browser does not support the video tag.
+                      </video>
+                    ) : (
+                      <img
+                        src={pb.files.getUrl(post, post.file)}
+                        alt={post.label || "Uploaded Image"}
+                        width="300"
+                      />
+                    )
+                  ) : (
+                    <p>No file found for this post.</p>
+                  )}
+                  <p>{post.label}</p>
+                </div>
+              ))
+            ) : (
+              <p>No posts found.</p>
+            )}
+          </div>
         </div>
-
-        <button className="signout-button" onClick={handleSignout}>
-          Sign Out
-        </button>
-      </header>
+      </div>
     </div>
   );
 };

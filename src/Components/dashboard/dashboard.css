@@ -7,13 +7,19 @@
 body, html {
   color: white;
   overflow: auto;
-  background: rgb(0, 0, 0);
+  background: rgb(15, 15, 15);
 }
 
 .fullpage {
   display: flex;
   flex-direction: row; /* Align sidebar and header side by side */
   height: 100vh; /* Full viewport height */
+}
+
+.headvid{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 header {
@@ -23,11 +29,64 @@ header {
   width: 100%;
   height: 80px;
   padding: 20px;
+  align-items: center;
+  justify-items: center;
+}
+
+.uploadimage{
+  padding-left: 20px;
+}
+
+.uploadimage img{
+  height: 35px;
+  width: 35px;
+  cursor: pointer;
+}
+
+/* Ensure the popout stays on top of blurred content */
+.popout {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+  padding: 20px;
+  border-radius: 10px;
+  color: white;
+  z-index: 9999; /* Ensure it is above the blurred background */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Style for the upload button */
+.popout button {
+  background-color: rgb(255, 238, 145); /* Green */
+  color: black;
+  padding: 15px;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.popouttext{
+  padding: 20px;
+  margin-bottom: 20px;
+  width: 400px;
+  font-size: 20px;
+  border: 2px solid rgb(255, 238, 145);
+}
+
+input:focus .popouttext{
+  border-color: rgb(255, 238, 145);
 }
 
 .nav{
   display: flex;
-  height: 100vh;
+  height: 100%;
   background: #1d1d1d;
   width: 260px;
 }
@@ -38,17 +97,22 @@ header {
   width: 100%;
   color: white;
   padding: 20px;
+  padding-top: 0;
 }
 
 .friend{
   display: flex;
   justify-content: center;
+  align-items: center;
+  height: 80px;
+  padding: 0;
 }
 ul {
   list-style: none;
   padding-top: 0;
   margin: 0;  /* Optional: Removes default margin */
   font-size: 20px;
+  padding-top: 20px;
 }
 
 li {
@@ -56,19 +120,47 @@ li {
 }
 
 .signout-button {
+  font-size: 20px;
+  font-weight: bold;
   margin-left: auto;
   padding: 10px 20px;
-  background-color: #FF5722; /* Add some color */
+  background-color: rgb(255, 238, 145); /* Add some color */
   border: none;
-  color: white;
+  color: black;
   cursor: pointer;
 }
 
 .signout-button:hover {
-  background-color: #FF7849; /* Hover effect */
+  background-color: rgb(255, 250, 227); /* Hover effect */
 }
 
 h1 {
   font-size: 30px;
-  margin-bottom: 10px;
 }
+
+.videocontainer{
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.videobody{
+  margin-top: 80px;
+  width: 90%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); 
+  justify-content: center; /* Centers last row */
+  gap: 16px;
+}
+
+.videobody video{
+  width: 100%; /* Responsive width */
+}
+
+.post-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers content horizontally */
+  text-align: center; /* Ensures text is centered */
+}
+
