@@ -4,7 +4,7 @@ import "./dashboard.css";
 import pb from "../utils/pocketbase";
 import Auth from "../utils/Auth.jsx";
 import logout_logo from "../Assets/logout.png";
-import upload_logo from "../Assets/upload.png";
+import upload_logo from "../Assets/Upload.png";
 import { ToastContainer, toast } from "react-toastify";
 
 const Dashboard = () => {
@@ -152,16 +152,11 @@ const Dashboard = () => {
 
       <div className="headvid">
         <header>
-          {userData ? (
-            <h1>
-              {pb.authStore.model.id === userData.id ? "Your " : userData.name}
-              Videos
-            </h1>
-          ) : (
-            <div>Loading user data...</div>
-          )}
           <div className="uploadimage">
-            <img src={upload_logo} alt="Upload" onClick={handleImageClick} />
+            <button className="uploadbutton" onClick={handleImageClick}>
+              <h2>Upload</h2>
+              <img className="uploadicon" src={upload_logo} alt="Upload" />
+            </button>
             <input
               ref={fileInputRef}
               type="file"
@@ -193,9 +188,17 @@ const Dashboard = () => {
             )}
           </div>
           <button className="signout-button" onClick={handleSignout}>
-            Sign Out
+            <h2>Sign Out</h2>
           </button>
         </header>
+        {userData ? (
+          <h1 className="uservideos">
+            {pb.authStore.model.id === userData.id ? "Your " : userData.name}
+            Videos
+          </h1>
+        ) : (
+          <div className="uservideos">Loading user data...</div>
+        )}
         <div className="videocontainer">
           <div className="videobody">
             {userPosts.length > 0 ? (

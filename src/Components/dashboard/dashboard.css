@@ -7,7 +7,7 @@
 body, html {
   color: white;
   overflow: auto;
-  background: rgb(15, 15, 15);
+  background: rgb(20, 20, 20);
 }
 
 .fullpage {
@@ -31,16 +31,6 @@ header {
   padding: 20px;
   align-items: center;
   justify-items: center;
-}
-
-.uploadimage{
-  padding-left: 20px;
-}
-
-.uploadimage img{
-  height: 35px;
-  width: 35px;
-  cursor: pointer;
 }
 
 /* Ensure the popout stays on top of blurred content */
@@ -120,7 +110,7 @@ li {
 }
 
 .signout-button {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
   margin-left: auto;
   padding: 10px 20px;
@@ -134,6 +124,30 @@ li {
   background-color: rgb(255, 250, 227); /* Hover effect */
 }
 
+.uploadbutton{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  padding: 10px 20px;
+  background-color: rgb(255, 238, 145);
+  border: none;
+  color: black;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.uploadbutton:hover{
+  background-color: rgb(255, 250, 227);
+}
+
+.uploadicon{
+  max-width: 24px;
+  max-height: 24px;
+  width: 100%;
+  height: auto;
+}
+
 h1 {
   font-size: 30px;
 }
@@ -144,8 +158,17 @@ h1 {
   overflow: hidden;
 }
 
+.uservideos{
+  display: flex;
+  height: 60px;
+  padding-top: 20px;
+  padding-left: 20px;
+  width: 200px;
+  flex-direction: column;
+}
+
 .videobody{
-  margin-top: 80px;
+  margin-top: 20px;
   width: 90%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); 
