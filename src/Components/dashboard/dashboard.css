@@ -33,6 +33,29 @@ header {
   justify-items: center;
 }
 
+.homebutton{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  padding: 10px 20px;
+  background-color: #EBAFFF;
+  border: none;
+  color: black;
+  cursor: pointer;
+  gap: 5px;
+  margin-right: 20px;
+}
+
+.homeicon{
+  height:26px;
+  width: 26px;
+}
+
+.homebutton:hover{
+  background-color: #f8e9fd;
+}
+
 /* Ensure the popout stays on top of blurred content */
 .popout {
   position: fixed;
@@ -97,6 +120,7 @@ input:focus .popouttext{
   height: 80px;
   padding: 0;
 }
+
 ul {
   list-style: none;
   padding-top: 0;
@@ -106,7 +130,16 @@ ul {
 }
 
 li {
-  padding-top: 10px;
+    display: flex;
+    align-items: center; /* Center vertically */
+    height: 40px; /* Adjust height as needed */
+    text-align: center; /* Ensures multi-line text is centered */
+    padding-left: 20px;
+    border-radius: 10px;
+}
+
+li:hover{
+  background: rgb(20, 20, 20);
 }
 
 .signout-button {
@@ -163,7 +196,7 @@ h1 {
   height: 60px;
   padding-top: 20px;
   padding-left: 20px;
-  width: 200px;
+  width: 100%;
   flex-direction: column;
 }
 

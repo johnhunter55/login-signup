@@ -5,7 +5,10 @@ import pb from "../utils/pocketbase";
 import Auth from "../utils/Auth.jsx";
 import logout_logo from "../Assets/logout.png";
 import upload_logo from "../Assets/Upload.png";
+import home_logo from "../Assets/Home.png";
 import { ToastContainer, toast } from "react-toastify";
+import cancel_upload from "../Assets/xcircle.png";
+import delete_video from "../Assets/xsquare.png";
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,8 @@ const Dashboard = () => {
   const [loadingVideo, setLoadingVideo] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [userPosts, setUserPosts] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(pb.authStore.model);
+  const [abortController, setAbortController] = useState(null);
 
   const handleSignout = () => {
     pb.authStore.clear();
@@ -91,35 +96,60 @@ const Dashboard = () => {
     } finally {
       setLoadingVideo(false);
       setUploading(false); // Hide popup after upload completes
-      setFile(null);
+      setFile(null); // Clear the file input
     }
   };
 
+  useEffect(() => {
+    // Reset file input and label state when upload is canceled
+    if (!uploading && !file) {
+      setLabel(""); // Clear the label when file is canceled
+    }
+  }, [uploading, file]); // Reset when either file or uploading state changes
+
   const handleImageClick = () => {
     fileInputRef.current.click(); // Trigger file input click on image click
+    const controller = new AbortController();
+    const signal = controller.signal;
+    setAbortController(controller); // Save controller to state
+  };
+
+  const cancelUpload = () => {
+    console.log("Cancel upload triggered");
+
+    if (abortController) {
+      console.log("Abort controller is set, canceling upload...");
+      abortController.abort(); // Cancel the upload
+      setUploading(false); // Stop showing the uploading state
+      setFile(null); // Clear the file input
+      setLabel(""); // Clear the label as well
+      toast("Upload canceled!");
+      setAbortController(null); // Clear the controller after canceling
+    } else {
+      console.log("No abort controller set, cannot cancel upload.");
+    }
+  };
+
+  const homeImageClick = () => {
+    setSelectedUser(pb.authStore.model); // Set to logged-in user
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (userData) {
-        const posts = await fetchUserPosts(userData.id);
-        setUserPosts(posts); // Store posts in state
-      }
-    };
+    if (selectedUser) {
+      fetchUserPosts(selectedUser.id); // Fetch posts for selected user
+    }
+  }, [selectedUser]); // This runs whenever `selectedUser` is updated
 
-    fetchData();
-  }, [userData]); // Runs when `userData` is set
   const fetchUserPosts = async (userId) => {
     try {
-      const userPosts = await pb.collection("posts").getFullList({
-        filter: `user = '${userId}'`, // Filter by user
-        sort: "-created", // Sort by latest
+      const posts = await pb.collection("posts").getFullList({
+        filter: `user = '${userId}'`,
+        sort: "-created",
       });
-
-      return userPosts || []; // Return empty array if no posts
+      setUserPosts(posts || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
-      return []; // Return empty array on error
+      setUserPosts([]); // Ensure it doesn't break
     }
   };
 
@@ -142,7 +172,20 @@ const Dashboard = () => {
           <h1 className="friend">Friends</h1>
           <ul>
             {displayRecords.length > 0 ? (
-              displayRecords.map((user) => <li key={user.id}>{user.name}</li>)
+              displayRecords
+                .filter((user) => user.id !== pb.authStore.model.id) // Filter out logged-in user
+                .map((user) => (
+                  <li
+                    key={user.id}
+                    onClick={() => setSelectedUser(user)}
+                    className={
+                      selectedUser?.id === user.id ? "selected-user" : ""
+                    }
+                    style={{ cursor: "pointer" }}
+                  >
+                    {user.name}
+                  </li>
+                ))
             ) : (
               <li>No users found.</li>
             )}
@@ -152,6 +195,10 @@ const Dashboard = () => {
 
       <div className="headvid">
         <header>
+          <button className="homebutton" onClick={homeImageClick}>
+            <h2>Home</h2>
+            <img className="homeicon" src={home_logo} alt="home" />
+          </button>
           <div className="uploadimage">
             <button className="uploadbutton" onClick={handleImageClick}>
               <h2>Upload</h2>
@@ -167,6 +214,12 @@ const Dashboard = () => {
             {/* Conditionally show label input once file is selected */}
             {file && !uploading && (
               <div className="popout">
+                <img
+                  onClick={cancelUpload}
+                  src={cancel_upload}
+                  style={{ cursor: "pointer" }}
+                />
+                <br></br>
                 <input
                   className="popouttext"
                   type="text"
@@ -193,8 +246,11 @@ const Dashboard = () => {
         </header>
         {userData ? (
           <h1 className="uservideos">
-            {pb.authStore.model.id === userData.id ? "Your " : userData.name}
-            Videos
+            {selectedUser && selectedUser.id === pb.authStore.model.id
+              ? "Your Videos" // When the selected user is the logged-in user
+              : selectedUser
+              ? `${selectedUser.name}'s Videos` // When it's another user's videos
+              : "Loading..."}{" "}
           </h1>
         ) : (
           <div className="uservideos">Loading user data...</div>
@@ -206,17 +262,24 @@ const Dashboard = () => {
                 <div key={post.id} className="post-container">
                   {post.file ? (
                     post.file.endsWith(".mp4") ||
+                    post.file.endsWith(".webm") ||
+                    post.file.endsWith(".ogg") ||
+                    post.file.endsWith(".mov") ||
+                    post.file.endsWith(".avi") ||
+                    post.file.endsWith(".wmv") ||
+                    post.file.endsWith(".flv") ||
+                    post.file.endsWith(".mkv") ||
                     post.file.endsWith(".webm") ? (
                       <video controls width="300">
                         <source
-                          src={pb.files.getUrl(post, post.file)}
+                          src={pb.files.getURL(post, post.file)}
                           type="video/mp4"
                         />
                         Your browser does not support the video tag.
                       </video>
                     ) : (
                       <img
-                        src={pb.files.getUrl(post, post.file)}
+                        src={pb.files.getURL(post, post.file)}
                         alt={post.label || "Uploaded Image"}
                         width="300"
                       />
